@@ -7,7 +7,7 @@ ParameterSSENCYPT=${ParameterSSENCYPT:-chacha20-ietf-poly1305}
 CADDYIndexPage=${CADDYIndexPage:-https://github.com/AYJCSGM/mikutap/archive/master.zip}
 
 # template file
-cat >> Caddyfile.temp <<EOF
+cat > Caddyfile.temp <<EOF
 {
         admin off
         servers {
@@ -49,7 +49,7 @@ route /\$AUUID-trojan {
 
 EOF
 
-cat >> config.json <<EOF
+cat > config.json <<EOF
 {
     #"log": { "loglevel": "info" },
     "inbounds": 
