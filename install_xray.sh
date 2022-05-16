@@ -7,51 +7,50 @@ CADDYIndexPage=${CADDYIndexPage:-https://github.com/AYJCSGM/mikutap/archive/mast
 
 # template file
 cat >> Caddyfile.temp <<EOF
+{
+        servers {
+                protocol {
+                        experimental_http3
+                }
+        }
+}
 :\$PORT
 root * www
 file_server browse
 
-{
-  servers {
-    protocol {
-      experimental_http3
-    }
-  }
-}
-
 route {
-  forward_proxy {
-    basic_auth xwy fuck_gfw_ccp
-    hide_ip
-    hide_via
-    probe_resistance
-  }
-  root * /usr/share/caddy
-  file_server browse
+        forward_proxy {
+                basic_auth xwy fuck_gfw_ccp
+                hide_ip
+                hide_via
+                probe_resistance
+        }
+        root * www
+        file_server browse
 }
 
 basicauth /\$AUUID/* {
-	\$AUUID \$MYUUID-HASH
+        \$AUUID \$MYUUID-HASH
 }
 
 route /\$AUUID-vmess {
-	reverse_proxy 127.0.0.1:7001
+        reverse_proxy 127.0.0.1:7001
 }
 
 route /\$AUUID-vless {
-	reverse_proxy 127.0.0.1:7002
+        reverse_proxy 127.0.0.1:7002
 }
 
 route /\$AUUID-trojan {
-	reverse_proxy 127.0.0.1:7003
+        reverse_proxy 127.0.0.1:7003
 }
 
 route /\$AUUID-ss {
-	reverse_proxy 127.0.0.1:4234
+        reverse_proxy 127.0.0.1:4234
 }
 
 route /\$AUUID-socks {
-	reverse_proxy 127.0.0.1:5234
+        reverse_proxy 127.0.0.1:5234
 }
 
 EOF
@@ -125,7 +124,7 @@ echo -e "User-agent: *\nDisallow: /" > www/robots.txt
 wget $CADDYIndexPage -O www/index.html && unzip -qo www/index.html -d www/ && mv www/*/* www/
 
 # set config file
-cat ./Caddyfile.temp | sed -e "1c :$PORT" -e "s/\$AUUID/$AUUID/g" -e "s/\$MYUUID-HASH/$(./caddy hash-password --plaintext $AUUID)/g" > Caddyfile
+cat ./Caddyfile.temp | sed -e "s/\$PORT/$PORT/g" -e "s/\$AUUID/$AUUID/g" -e "s/\$MYUUID-HASH/$(./caddy hash-password --plaintext $AUUID)/g" > Caddyfile
 cat ./config.json | sed -e "s/\$AUUID/$AUUID/g" -e "s/\$ParameterSSENCYPT/$ParameterSSENCYPT/g" > xray.json
 
 # start cmd
