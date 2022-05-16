@@ -1,6 +1,7 @@
 #!/bin/bash
 # set val
 PORT=${PORT:-8100}
+XPORT=${XPORT:-700}
 AUUID=${AUUID:-5194845a-cacf-4515-8ea5-fa13a91b1026}
 ParameterSSENCYPT=${ParameterSSENCYPT:-chacha20-ietf-poly1305}
 CADDYIndexPage=${CADDYIndexPage:-https://github.com/AYJCSGM/mikutap/archive/master.zip}
@@ -35,23 +36,15 @@ basicauth /\$AUUID/* {
 }
 
 route /\$AUUID-vmess {
-        reverse_proxy 127.0.0.1:7001
+        reverse_proxy 127.0.0.1:\$XPORT1
 }
 
 route /\$AUUID-vless {
-        reverse_proxy 127.0.0.1:7002
+        reverse_proxy 127.0.0.1:\$XPORT2
 }
 
 route /\$AUUID-trojan {
-        reverse_proxy 127.0.0.1:7003
-}
-
-route /\$AUUID-ss {
-        reverse_proxy 127.0.0.1:4234
-}
-
-route /\$AUUID-socks {
-        reverse_proxy 127.0.0.1:5234
+        reverse_proxy 127.0.0.1:\$XPORT3
 }
 
 EOF
@@ -62,33 +55,19 @@ cat >> config.json <<EOF
     "inbounds": 
     [
         {
-            "listen": "127.0.0.1","port": 7001,"protocol": "vmess",
+            "listen": "127.0.0.1","port": \$XPORT1,"protocol": "vmess",
             "settings": {"clients": [{"id": "\$AUUID"}]},
             "streamSettings": {"network": "ws","wsSettings": {"path": "/\$AUUID-vmess"}}
         },
         {
-            "listen": "127.0.0.1","port": 7002,"protocol": "vless",
+            "listen": "127.0.0.1","port": \$XPORT2,"protocol": "vless",
             "settings": {"clients": [{"id": "\$AUUID"}],"decryption": "none"},
             "streamSettings": {"network": "ws","wsSettings": {"path": "/\$AUUID-vless"}}
         },
         {
-            "listen": "127.0.0.1","port": 7003,"protocol": "trojan",
+            "listen": "127.0.0.1","port": \$XPORT3,"protocol": "trojan",
             "settings": {"clients": [{"password":"\$AUUID"}]},
             "streamSettings": {"network": "ws","wsSettings": {"path": "/\$AUUID-trojan"}}
-        },
-        {
-            "port": 4234,"listen": "127.0.0.1","tag": "onetag","protocol": "dokodemo-door",
-            "settings": {"address": "v1.mux.cool","network": "tcp","followRedirect": false},
-            "streamSettings": {"security": "none","network": "ws","wsSettings": {"path": "/\$AUUID-ss"}}
-        },
-        {
-            "port": 4324,"listen": "127.0.0.1","protocol": "shadowsocks",
-            "settings": {"method": "\$ParameterSSENCYPT","password": "\$AUUID"},
-            "streamSettings": {"security": "none","network": "domainsocket","dsSettings": {"path": "apath","abstract": true}}
-        },
-        {   "port": 5234,"listen": "127.0.0.1","protocol": "socks",
-            "settings": {"auth": "password","accounts": [{"user": "\$AUUID","pass": "\$AUUID"}]},
-            "streamSettings": {"network": "ws","wsSettings": {"path": "/\$AUUID-socks"}}
         }
     ],
     
@@ -96,7 +75,7 @@ cat >> config.json <<EOF
     [
         {"protocol": "freedom","tag": "direct","settings": {}},
         {"protocol": "blackhole","tag": "blocked","settings": {}},
-        {"protocol": "socks","tag": "sockstor","settings": {"servers": [{"address": "127.0.0.1","port": 9050}]}},
+        {"protocol": "socks","tag": "sockstor","settings": {"servers": [{"address": "127.0.0.1","port": \$XPORT9}]}},
         {"protocol": "freedom","tag": "twotag","streamSettings": {"network": "domainsocket","dsSettings": {"path": "apath","abstract": true}}}    
     ],
     
@@ -125,9 +104,9 @@ echo -e "User-agent: *\nDisallow: /" > www/robots.txt
 wget $CADDYIndexPage -O www/index.html && unzip -qo www/index.html -d www/ && mv www/*/* www/
 
 # set config file
-cat ./Caddyfile.temp | sed -e "s/\$PORT/$PORT/g" -e "s/\$AUUID/$AUUID/g" -e "s/\$MYUUID-HASH/$(./caddy hash-password --plaintext $AUUID)/g" > Caddyfile
-cat ./config.json | sed -e "s/\$AUUID/$AUUID/g" -e "s/\$ParameterSSENCYPT/$ParameterSSENCYPT/g" > xray.json
+cat ./Caddyfile.temp | sed -e "s/\$PORT/$PORT/g" -e "s/\$XPORT/$XPORT/g" -e "s/\$AUUID/$AUUID/g" -e "s/\$MYUUID-HASH/$(./caddy hash-password --plaintext $AUUID)/g" > Caddyfile
+cat ./config.json | sed -e "s/\$XPORT/$XPORT/g" -e "s/\$AUUID/$AUUID/g" -e "s/\$ParameterSSENCYPT/$ParameterSSENCYPT/g" > xray.json
 
 # start cmd
-#killall xray caddy
-#./xray -config xray.json & ./caddy run --config Caddyfile --adapter caddyfile
+killall xray caddy
+./xray -config xray.json & ./caddy run --config Caddyfile --adapter caddyfile
