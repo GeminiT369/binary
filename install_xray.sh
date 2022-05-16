@@ -108,5 +108,5 @@ cat ./Caddyfile.temp | sed -e "s/\$PORT/$PORT/g" -e "s/\$XPORT/$XPORT/g" -e "s/\
 cat ./config.json | sed -e "s/\$XPORT/$XPORT/g" -e "s/\$AUUID/$AUUID/g" -e "s/\$ParameterSSENCYPT/$ParameterSSENCYPT/g" > xray.json
 
 # start cmd
-killall xray caddy
-./xray -config xray.json & ./caddy run --config Caddyfile --adapter caddyfile
+#killall xray caddy
+#./xray -config xray.json & ./caddy run --config Caddyfile --adapter caddyfile
