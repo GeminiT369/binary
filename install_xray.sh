@@ -8,6 +8,7 @@ CADDYIndexPage=${CADDYIndexPage:-https://github.com/AYJCSGM/mikutap/archive/mast
 # template file
 cat >> Caddyfile.temp <<EOF
 {
+        admin off
         servers {
                 protocol {
                         experimental_http3
