@@ -1,6 +1,6 @@
 #!/bin/bash
 # set val
-PORT=${PORT:-8100}
+PORT=${PORT:-8080}
 XPORT=${XPORT:-700}
 AUUID=${AUUID:-5194845a-cacf-4515-8ea5-fa13a91b1026}
 ParameterSSENCYPT=${ParameterSSENCYPT:-chacha20-ietf-poly1305}
@@ -45,6 +45,10 @@ route /\$AUUID-vless {
 
 route /\$AUUID-trojan {
         reverse_proxy 127.0.0.1:\$XPORT3
+}
+
+route /\$AUUID-brook {
+        reverse_proxy 127.0.0.1:\$XPORT4
 }
 
 EOF
